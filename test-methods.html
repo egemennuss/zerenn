@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxChat - Method Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 LuxChat Method Test</h1>
+    <p>Click the button to test if all required methods are present in LuxChatFull class.</p>
+    
+    <button onclick="testMethods()">Run Method Test</button>
+    <button onclick="testNotification()">Test Notification</button>
+    <button onclick="testSound()">Test Sound</button>
+    
+    <div id="test-results"></div>
+    
+    <script src="js/webrtc.js"></script>
+    <script src="js/room-manager.js"></script>
+    <script src="js/luxchat-full.js"></script>
+    
+    <script>
+        function addResult(message, isPass) {
+            const resultsDiv = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${isPass ? 'pass' : 'fail'}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        function testMethods() {
+            document.getElementById('test-results').innerHTML = '';
+            
+            const requiredMethods = [
+                'setupTheme',
+                'toggleTheme',
+                'applyTheme',
+                'showNotification',
+                'playSound',
+                'escapeHtml',
+                'displayMessage',
+                'addMessageToUI',
+                'validateUsername',
+                'hideLoadingScreen',
+                'setupGlobalChat',
+                'joinGlobalRoom',
+                'generateGlobalRoomCode',
+                'showGlobalRoomOption'
+            ];
+            
+            let passCount = 0;
+            
+            requiredMethods.forEach(methodName => {
+                const exists = typeof LuxChatFull.prototype[methodName] === 'function';
+                addResult(`${methodName}: ${exists ? 'EXISTS' : 'MISSING'}`, exists);
+                if (exists) passCount++;
+            });
+            
+            addResult(`\nTEST SUMMARY: ${passCount}/${requiredMethods.length} methods found`, passCount === requiredMethods.length);
+        }
+        
+        function testNotification() {
+            if (window.luxChat && typeof window.luxChat.showNotification === 'function') {
+                window.luxChat.showNotification('Test notification working! 🎉', 'success');
+                addResult('Notification test: SUCCESS', true);
+            } else {
+                addResult('Notification test: FAILED - Method not available', false);
+            }
+        }
+        
+        function testSound() {
+            if (window.luxChat && typeof window.luxChat.playSound === 'function') {
+                window.luxChat.playSound('notification');
+                addResult('Sound test: SUCCESS (if you heard a beep)', true);
+            } else {
+                addResult('Sound test: FAILED - Method not available', false);
+            }
+        }
+        
+        // Auto-run method test after app loads
+        setTimeout(() => {
+            testMethods();
+        }, 2000);
+    </script>
+</body>
+</html>

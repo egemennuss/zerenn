@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxChat - Test Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            margin: 8px 0;
+            padding: 5px;
+        }
+        .checklist input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .success { color: #28a745; }
+        .warning { color: #ffc107; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .result.pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 LuxChat Test Suite</h1>
+    
+    <div class="test-section">
+        <h3>📋 Manual Testing Checklist</h3>
+        <ul class="checklist">
+            <li><input type="checkbox" id="app-loads"> <label for="app-loads">App loads without errors</label></li>
+            <li><input type="checkbox" id="room-modal"> <label for="room-modal">Room selection modal appears</label></li>
+            <li><input type="checkbox" id="create-room"> <label for="create-room">Can create a room</label></li>
+            <li><input type="checkbox" id="join-room"> <label for="join-room">Can join a room with code</label></li>
+            <li><input type="checkbox" id="username-modal"> <label for="username-modal">Username modal appears after room selection</label></li>
+            <li><input type="checkbox" id="chat-works"> <label for="chat-works">Text chat functionality works</label></li>
+            <li><input type="checkbox" id="voice-permissions"> <label for="voice-permissions">Voice chat asks for microphone permissions</label></li>
+            <li><input type="checkbox" id="theme-toggle"> <label for="theme-toggle">Theme toggle works</label></li>
+            <li><input type="checkbox" id="responsive"> <label for="responsive">App is responsive on mobile</label></li>
+            <li><input type="checkbox" id="multi-user"> <label for="multi-user">Multi-user tested with multiple tabs</label></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 Automated Tests</h3>
+        <button class="test-button" onclick="testDOMElements()">Test DOM Elements</button>
+        <button class="test-button" onclick="testJavaScriptObjects()">Test JavaScript Objects</button>
+        <button class="test-button" onclick="testWebRTCSupport()">Test WebRTC Support</button>
+        <button class="test-button" onclick="testLocalStorage()">Test LocalStorage</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🌐 Multi-User Testing Instructions</h3>
+        <ol>
+            <li><strong>Open LuxChat:</strong> <a href="index.html" target="_blank">Open LuxChat in a new tab</a></li>
+            <li><strong>Create Room:</strong> Create a room and note the room code</li>
+            <li><strong>Open Second Tab:</strong> <a href="index.html" target="_blank">Open LuxChat in another tab</a></li>
+            <li><strong>Join Room:</strong> Use the room code to join from the second tab</li>
+            <li><strong>Test Chat:</strong> Send messages between tabs</li>
+            <li><strong>Test Voice:</strong> Try voice features (requires microphone permissions)</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>📱 Mobile Testing</h3>
+        <p>Test the application on mobile devices:</p>
+        <ul>
+            <li>Open browser developer tools</li>
+            <li>Toggle device toolbar (F12 → Responsive mode)</li>
+            <li>Test various screen sizes</li>
+            <li>Verify touch interactions work</li>
+            <li>Check that modals are properly sized</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>🚀 Deployment Readiness</h3>
+        <ul class="checklist">
+            <li><input type="checkbox" id="files-present"> <label for="files-present">All required files present</label></li>
+            <li><input type="checkbox" id="no-server-deps"> <label for="no-server-deps">No server dependencies</label></li>
+            <li><input type="checkbox" id="https-ready"> <label for="https-ready">HTTPS ready (WebRTC requirements)</label></li>
+            <li><input type="checkbox" id="github-pages-ready"> <label for="github-pages-ready">GitHub Pages compatible</label></li>
+            <li><input type="checkbox" id="docs-updated"> <label for="docs-updated">Documentation updated</label></li>
+        </ul>
+        <button class="test-button" onclick="checkDeploymentReadiness()">Check Deployment Readiness</button>
+        <div id="deployment-results"></div>
+    </div>
+
+    <script>
+        function addResult(containerId, message, isPass) {
+            const container = document.getElementById(containerId);
+            const result = document.createElement('div');
+            result.className = `result ${isPass ? 'pass' : 'fail'}`;
+            result.textContent = message;
+            container.appendChild(result);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        function testDOMElements() {
+            clearResults('test-results');
+            
+            const requiredElements = [
+                'loading-screen',
+                'app',
+                'room-modal',
+                'username-modal',
+                'messages-container',
+                'message-input',
+                'participants-list',
+                'join-voice-btn',
+                'mute-btn',
+                'theme-toggle'
+            ];
+
+            let passed = 0;
+            let total = requiredElements.length;
+
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                const exists = element !== null;
+                addResult('test-results', `Element #${id}: ${exists ? 'Found' : 'Missing'}`, exists);
+                if (exists) passed++;
+            });
+
+            addResult('test-results', `DOM Elements Test: ${passed}/${total} passed`, passed === total);
+        }
+
+        function testJavaScriptObjects() {
+            clearResults('test-results');
+            
+            const tests = [
+                { name: 'LuxChatFull class', test: () => typeof window.LuxChatFull === 'function' },
+                { name: 'WebRTCManager class', test: () => typeof window.WebRTCManager === 'function' },
+                { name: 'RoomManager class', test: () => typeof window.RoomManager === 'function' },
+                { name: 'luxChat instance', test: () => window.luxChat !== undefined }
+            ];
+
+            let passed = 0;
+            tests.forEach(test => {
+                const result = test.test();
+                addResult('test-results', `${test.name}: ${result ? 'Available' : 'Missing'}`, result);
+                if (result) passed++;
+            });
+
+            addResult('test-results', `JavaScript Objects Test: ${passed}/${tests.length} passed`, passed === tests.length);
+        }
+
+        function testWebRTCSupport() {
+            clearResults('test-results');
+            
+            const hasGetUserMedia = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+            const hasRTCPeerConnection = window.RTCPeerConnection !== undefined;
+            const hasDataChannel = hasRTCPeerConnection && RTCPeerConnection.prototype.createDataChannel;
+
+            addResult('test-results', `getUserMedia support: ${hasGetUserMedia ? 'Yes' : 'No'}`, hasGetUserMedia);
+            addResult('test-results', `RTCPeerConnection support: ${hasRTCPeerConnection ? 'Yes' : 'No'}`, hasRTCPeerConnection);
+            addResult('test-results', `DataChannel support: ${hasDataChannel ? 'Yes' : 'No'}`, hasDataChannel);
+
+            const allSupported = hasGetUserMedia && hasRTCPeerConnection && hasDataChannel;
+            addResult('test-results', `WebRTC Full Support: ${allSupported ? 'Yes' : 'No'}`, allSupported);
+        }
+
+        function testLocalStorage() {
+            clearResults('test-results');
+            
+            try {
+                const testKey = 'luxchat-test';
+                const testValue = 'test-data';
+                
+                localStorage.setItem(testKey, testValue);
+                const retrieved = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+                
+                const works = retrieved === testValue;
+                addResult('test-results', `LocalStorage Read/Write: ${works ? 'Working' : 'Failed'}`, works);
+                
+                // Test storage quota
+                try {
+                    const largeData = 'x'.repeat(100000); // 100KB test
+                    localStorage.setItem('luxchat-quota-test', largeData);
+                    localStorage.removeItem('luxchat-quota-test');
+                    addResult('test-results', 'LocalStorage Quota: Sufficient', true);
+                } catch (e) {
+                    addResult('test-results', 'LocalStorage Quota: Limited', false);
+                }
+                
+            } catch (e) {
+                addResult('test-results', `LocalStorage Error: ${e.message}`, false);
+            }
+        }
+
+        function checkDeploymentReadiness() {
+            clearResults('deployment-results');
+            
+            const checks = [
+                {
+                    name: 'Static Files Only',
+                    test: () => !document.querySelector('script[src*="node_modules"]') && 
+                               !document.querySelector('script[src*="localhost"]'),
+                    message: 'No local server dependencies found'
+                },
+                {
+                    name: 'HTTPS Protocol Ready',
+                    test: () => location.protocol === 'https:' || location.hostname === 'localhost',
+                    message: 'HTTPS protocol supported (required for WebRTC)'
+                },
+                {
+                    name: 'External Dependencies',
+                    test: () => document.querySelector('link[href*="googleapis.com"]') && 
+                               document.querySelector('link[href*="cdnjs.cloudflare.com"]'),
+                    message: 'External dependencies properly linked'
+                },
+                {
+                    name: 'No Backend Requirements',
+                    test: () => !document.querySelector('script[src*="socket.io"]') && 
+                               !document.querySelector('script[src*="firebase"]'),
+                    message: 'No backend server requirements'
+                }
+            ];
+
+            let passed = 0;
+            checks.forEach(check => {
+                const result = check.test();
+                addResult('deployment-results', `${check.name}: ${result ? 'Pass' : 'Fail'} - ${check.message}`, result);
+                if (result) passed++;
+            });
+
+            const ready = passed === checks.length;
+            addResult('deployment-results', `Deployment Readiness: ${ready ? 'READY' : 'NEEDS ATTENTION'}`, ready);
+        }
+
+        // Auto-run some tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testDOMElements();
+                testWebRTCSupport();
+                testLocalStorage();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

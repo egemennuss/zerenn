@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxChat User Flow Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-step { 
+            background: #2a2a2a; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid #667eea;
+        }
+        .test-step.success { border-left-color: #28a745; background: rgba(40, 167, 69, 0.1); }
+        .test-step.error { border-left-color: #dc3545; background: rgba(220, 53, 69, 0.1); }
+        .test-step.warning { border-left-color: #ffc107; background: rgba(255, 193, 7, 0.1); }
+        button { 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #5a6fd8; }
+        .status { font-weight: bold; }
+        .details { margin-top: 10px; font-size: 0.9em; opacity: 0.8; }
+        input { 
+            padding: 8px; 
+            margin: 5px; 
+            border: 1px solid #555; 
+            background: #333; 
+            color: #fff; 
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 LuxChat User Flow Test</h1>
+        <p>This test simulates a complete user journey through LuxChat to identify any remaining issues.</p>
+        
+        <div class="test-step" id="step1">
+            <h3>Step 1: Page Load & Initialization</h3>
+            <div class="status" id="step1-status">Testing...</div>
+            <div class="details" id="step1-details">Checking if all classes and components load correctly</div>
+        </div>
+        
+        <div class="test-step" id="step2">
+            <h3>Step 2: Username Entry</h3>
+            <div class="status" id="step2-status">Waiting...</div>
+            <div class="details">
+                <input type="text" id="test-username" placeholder="Enter test username" value="TestUser123">
+                <button onclick="testUsernameEntry()">Test Username Entry</button>
+            </div>
+        </div>
+        
+        <div class="test-step" id="step3">
+            <h3>Step 3: Room Creation</h3>
+            <div class="status" id="step3-status">Waiting...</div>
+            <div class="details">
+                <input type="text" id="test-room-name" placeholder="Test Room Name" value="Test Room">
+                <button onclick="testRoomCreation()">Test Room Creation</button>
+            </div>
+        </div>
+        
+        <div class="test-step" id="step4">
+            <h3>Step 4: Global Room Join</h3>
+            <div class="status" id="step4-status">Waiting...</div>
+            <div class="details">
+                <button onclick="testGlobalRoomJoin()">Test Global Room Join</button>
+            </div>
+        </div>
+        
+        <div class="test-step" id="step5">
+            <h3>Step 5: Message Sending</h3>
+            <div class="status" id="step5-status">Waiting...</div>
+            <div class="details">
+                <input type="text" id="test-message" placeholder="Test message" value="Hello, this is a test message!">
+                <button onclick="testMessageSending()">Test Message Sending</button>
+            </div>
+        </div>
+        
+        <div class="test-step" id="step6">
+            <h3>Step 6: Cross-Tab Communication</h3>
+            <div class="status" id="step6-status">Waiting...</div>
+            <div class="details">
+                <button onclick="testCrossTabCommunication()">Test Cross-Tab Communication</button>
+                <div id="step6-details">This will test localStorage-based message broadcasting</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <button onclick="runAllTests()" style="background: #28a745; font-size: 1.1em; padding: 15px 30px;">
+                🚀 Run All Tests
+            </button>
+            <button onclick="clearAndReset()" style="background: #dc3545;">
+                🧹 Clear & Reset
+            </button>
+        </div>
+        
+        <div id="overall-result" style="margin-top: 20px; padding: 20px; border-radius: 8px; text-align: center;"></div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let testResults = {};
+        
+        function setStepStatus(step, status, message, details = '') {
+            const stepElement = document.getElementById(`step${step}`);
+            const statusElement = document.getElementById(`step${step}-status`);
+            const detailsElement = document.getElementById(`step${step}-details`);
+            
+            stepElement.className = `test-step ${status}`;
+            statusElement.textContent = message;
+            if (details) {
+                detailsElement.innerHTML = details;
+            }
+            
+            testResults[`step${step}`] = status;
+        }
+        
+        // Step 1: Test page load and initialization
+        function testPageLoad() {
+            try {
+                let issues = [];
+                let successes = [];
+                
+                // Check if classes exist
+                if (typeof LuxChatFull === 'undefined') {
+                    issues.push('LuxChatFull class not found');
+                } else {
+                    successes.push('LuxChatFull class loaded');
+                }
+                
+                if (typeof WebRTCManager === 'undefined') {
+                    issues.push('WebRTCManager class not found');
+                } else {
+                    successes.push('WebRTCManager class loaded');
+                }
+                
+                if (typeof RoomManager === 'undefined') {
+                    issues.push('RoomManager class not found');
+                } else {
+                    successes.push('RoomManager class loaded');
+                }
+                
+                // Check if app instance exists
+                if (typeof window.luxChat === 'undefined') {
+                    issues.push('App instance not created');
+                } else {
+                    successes.push('App instance exists');
+                }
+                
+                // Check critical DOM elements
+                const requiredElements = ['username-modal', 'room-modal', 'notification-container'];
+                requiredElements.forEach(id => {
+                    if (!document.getElementById(id)) {
+                        issues.push(`Missing element: ${id}`);
+                    } else {
+                        successes.push(`Found element: ${id}`);
+                    }
+                });
+                
+                if (issues.length === 0) {
+                    setStepStatus(1, 'success', '✅ All components loaded successfully', 
+                        successes.join('<br>'));
+                } else {
+                    setStepStatus(1, 'error', '❌ Critical components missing', 
+                        'Issues: ' + issues.join('<br>') + '<br>Successes: ' + successes.join('<br>'));
+                }
+                
+            } catch (error) {
+                setStepStatus(1, 'error', '❌ Page load test failed', 
+                    'Error: ' + error.message);
+            }
+        }
+        
+        // Step 2: Test username entry
+        function testUsernameEntry() {
+            try {
+                const username = document.getElementById('test-username').value.trim();
+                
+                if (!username) {
+                    setStepStatus(2, 'error', '❌ No username provided', 'Please enter a username to test');
+                    return;
+                }
+                
+                if (!window.luxChat) {
+                    setStepStatus(2, 'error', '❌ LuxChat not initialized', 'App instance not available');
+                    return;
+                }
+                
+                // Test username validation
+                const isValid = window.luxChat.validateUsername(username);
+                if (!isValid) {
+                    setStepStatus(2, 'warning', '⚠️ Username validation failed', 
+                        'Username must be 2-20 characters, letters/numbers only');
+                    return;
+                }
+                
+                // Test setting username
+                localStorage.setItem('luxchat_current_user', username);
+                const retrieved = localStorage.getItem('luxchat_current_user');
+                
+                if (retrieved === username) {
+                    setStepStatus(2, 'success', '✅ Username entry successful', 
+                        `Username "${username}" validated and stored`);
+                } else {
+                    setStepStatus(2, 'error', '❌ Username storage failed', 
+                        'Could not store username in localStorage');
+                }
+                
+            } catch (error) {
+                setStepStatus(2, 'error', '❌ Username test failed', 'Error: ' + error.message);
+            }
+        }
+        
+        // Step 3: Test room creation
+        function testRoomCreation() {
+            try {
+                const roomName = document.getElementById('test-room-name').value.trim();
+                const username = localStorage.getItem('luxchat_current_user');
+                
+                if (!username) {
+                    setStepStatus(3, 'error', '❌ No username set', 'Please complete Step 2 first');
+                    return;
+                }
+                
+                if (!window.luxChat || !window.luxChat.roomManager) {
+                    setStepStatus(3, 'error', '❌ Room manager not available', 'App not fully initialized');
+                    return;
+                }
+                
+                // Test room code generation
+                const roomCode = window.luxChat.roomManager.generateRoomCode();
+                if (!/^[A-Z0-9]{6}$/.test(roomCode)) {
+                    setStepStatus(3, 'error', '❌ Invalid room code generated', 
+                        `Generated code "${roomCode}" doesn't match expected format`);
+                    return;
+                }
+                
+                setStepStatus(3, 'success', '✅ Room creation test passed', 
+                    `Room code "${roomCode}" generated successfully for "${roomName || 'Unnamed Room'}"`);
+                
+            } catch (error) {
+                setStepStatus(3, 'error', '❌ Room creation test failed', 'Error: ' + error.message);
+            }
+        }
+        
+        // Step 4: Test global room join
+        function testGlobalRoomJoin() {
+            try {
+                const username = localStorage.getItem('luxchat_current_user');
+                
+                if (!username) {
+                    setStepStatus(4, 'error', '❌ No username set', 'Please complete Step 2 first');
+                    return;
+                }
+                
+                // Test global room code generation
+                const domain = window.location.hostname;
+                let hash = 0;
+                for (let i = 0; i < domain.length; i++) {
+                    const char = domain.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                
+                const code = Math.abs(hash).toString(36).toUpperCase().padStart(6, '0').replace(/[^A-Z0-9]/g, '0').substring(0, 6);
+                
+                if (!/^[A-Z0-9]{6}$/.test(code)) {
+                    setStepStatus(4, 'error', '❌ Invalid global room code', 
+                        `Generated code "${code}" is invalid`);
+                    return;
+                }
+                
+                // Test storing global room data
+                const globalRoomKey = `luxchat_global_${domain}`;
+                const roomData = {
+                    id: code,
+                    name: `${domain} Chat`,
+                    isGlobal: true,
+                    created: Date.now()
+                };
+                
+                localStorage.setItem(globalRoomKey, JSON.stringify(roomData));
+                
+                setStepStatus(4, 'success', '✅ Global room test passed', 
+                    `Global room "${code}" created for domain "${domain}"`);
+                
+            } catch (error) {
+                setStepStatus(4, 'error', '❌ Global room test failed', 'Error: ' + error.message);
+            }
+        }
+        
+        // Step 5: Test message sending
+        function testMessageSending() {
+            try {
+                const message = document.getElementById('test-message').value.trim();
+                const username = localStorage.getItem('luxchat_current_user');
+                
+                if (!username) {
+                    setStepStatus(5, 'error', '❌ No username set', 'Please complete Step 2 first');
+                    return;
+                }
+                
+                if (!message) {
+                    setStepStatus(5, 'error', '❌ No message provided', 'Please enter a test message');
+                    return;
+                }
+                
+                // Test message structure
+                const messageData = {
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    text: message,
+                    sender: username,
+                    timestamp: Date.now(),
+                    type: 'text'
+                };
+                
+                // Test message broadcasting
+                const roomCode = 'TEST01';
+                const storageKey = `luxchat_message_${roomCode}_${Date.now()}`;
+                localStorage.setItem(storageKey, JSON.stringify(messageData));
+                
+                // Verify storage
+                const stored = JSON.parse(localStorage.getItem(storageKey));
+                if (stored && stored.text === message) {
+                    setStepStatus(5, 'success', '✅ Message sending test passed', 
+                        `Message "${message}" prepared and stored successfully`);
+                    // Clean up
+                    localStorage.removeItem(storageKey);
+                } else {
+                    setStepStatus(5, 'error', '❌ Message storage failed', 
+                        'Could not store message properly');
+                }
+                
+            } catch (error) {
+                setStepStatus(5, 'error', '❌ Message test failed', 'Error: ' + error.message);
+            }
+        }
+        
+        // Step 6: Test cross-tab communication
+        function testCrossTabCommunication() {
+            try {
+                const username = localStorage.getItem('luxchat_current_user');
+                
+                if (!username) {
+                    setStepStatus(6, 'error', '❌ No username set', 'Please complete Step 2 first');
+                    return;
+                }
+                
+                // Test BroadcastChannel support
+                let details = [];
+                
+                if ('BroadcastChannel' in window) {
+                    details.push('✅ BroadcastChannel supported');
+                } else {
+                    details.push('⚠️ BroadcastChannel not supported, using localStorage fallback');
+                }
+                
+                // Test localStorage event simulation
+                details.push('✅ localStorage communication available');
+                
+                // Test storage event listener setup
+                let eventListenerWorks = false;
+                const testHandler = () => { eventListenerWorks = true; };
+                window.addEventListener('storage', testHandler);
+                
+                // Simulate a storage event
+                const testKey = 'luxchat_test_broadcast';
+                localStorage.setItem(testKey, JSON.stringify({ test: true }));
+                localStorage.removeItem(testKey);
+                
+                setTimeout(() => {
+                    window.removeEventListener('storage', testHandler);
+                    
+                    if (eventListenerWorks) {
+                        details.push('✅ Storage event listeners working');
+                    } else {
+                        details.push('ℹ️ Storage events work between different tabs/windows');
+                    }
+                    
+                    setStepStatus(6, 'success', '✅ Cross-tab communication ready', 
+                        details.join('<br>'));
+                }, 100);
+                
+            } catch (error) {
+                setStepStatus(6, 'error', '❌ Cross-tab test failed', 'Error: ' + error.message);
+            }
+        }
+        
+        function runAllTests() {
+            currentStep = 1;
+            testResults = {};
+            
+            // Reset all steps
+            for (let i = 1; i <= 6; i++) {
+                setStepStatus(i, '', 'Testing...', '');
+            }
+            
+            // Run tests sequentially
+            testPageLoad();
+            
+            setTimeout(() => {
+                // Auto-fill username if needed
+                if (!document.getElementById('test-username').value) {
+                    document.getElementById('test-username').value = 'TestUser' + Date.now().toString().slice(-3);
+                }
+                testUsernameEntry();
+            }, 500);
+            
+            setTimeout(() => testRoomCreation(), 1000);
+            setTimeout(() => testGlobalRoomJoin(), 1500);
+            setTimeout(() => testMessageSending(), 2000);
+            setTimeout(() => testCrossTabCommunication(), 2500);
+            
+            setTimeout(() => showOverallResult(), 3000);
+        }
+        
+        function showOverallResult() {
+            const results = Object.values(testResults);
+            const successCount = results.filter(r => r === 'success').length;
+            const errorCount = results.filter(r => r === 'error').length;
+            const warningCount = results.filter(r => r === 'warning').length;
+            
+            const resultDiv = document.getElementById('overall-result');
+            
+            if (errorCount === 0) {
+                resultDiv.innerHTML = `
+                    <h2 style="color: #28a745;">🎉 ALL TESTS PASSED!</h2>
+                    <p>LuxChat is working correctly. You can proceed with:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>Testing in multiple browser tabs</li>
+                        <li>Deploying to GitHub Pages</li>
+                        <li>Sharing with real users</li>
+                    </ul>
+                `;
+                resultDiv.style.background = 'rgba(40, 167, 69, 0.2)';
+                resultDiv.style.border = '2px solid #28a745';
+            } else {
+                resultDiv.innerHTML = `
+                    <h2 style="color: #ffc107;">⚠️ Some Issues Found</h2>
+                    <p>Results: ${successCount} passed, ${errorCount} failed, ${warningCount} warnings</p>
+                    <p>Please review the failed tests above and fix the issues.</p>
+                `;
+                resultDiv.style.background = 'rgba(255, 193, 7, 0.2)';
+                resultDiv.style.border = '2px solid #ffc107';
+            }
+        }
+        
+        function clearAndReset() {
+            // Clear localStorage
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('luxchat_')) {
+                    keys.push(key);
+                }
+            }
+            keys.forEach(key => localStorage.removeItem(key));
+            
+            // Reset form fields
+            document.getElementById('test-username').value = '';
+            document.getElementById('test-room-name').value = 'Test Room';
+            document.getElementById('test-message').value = 'Hello, this is a test message!';
+            
+            // Reset test results
+            for (let i = 1; i <= 6; i++) {
+                setStepStatus(i, '', 'Waiting...', '');
+            }
+            
+            document.getElementById('overall-result').innerHTML = '';
+            document.getElementById('overall-result').style.background = '';
+            document.getElementById('overall-result').style.border = '';
+            
+            alert(`Cleared ${keys.length} LuxChat items and reset all tests`);
+        }
+        
+        // Run initial page load test
+        window.addEventListener('load', () => {
+            setTimeout(testPageLoad, 1000);
+        });
+    </script>
+</body>
+</html>

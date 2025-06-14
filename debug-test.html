@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxChat Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+        .test-container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #5a6fd8; }
+        .debug-output { background: #2a2a2a; padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; }
+        input { padding: 8px; margin: 5px; border: 1px solid #555; background: #333; color: #fff; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 LuxChat Debug Test</h1>
+        
+        <div class="test-section">
+            <h3>User Session Test</h3>
+            <input type="text" id="test-username" placeholder="Enter test username" value="TestUser123">
+            <button onclick="testSetUsername()">Set Username</button>
+            <button onclick="testGetUsername()">Get Username</button>
+            <button onclick="testClearUsername()">Clear Username</button>
+            <div class="debug-output" id="user-debug"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Global Room Test</h3>
+            <button onclick="testGlobalRoomCode()">Generate Global Room Code</button>
+            <button onclick="testGlobalRoomSetup()">Setup Global Room</button>
+            <button onclick="testGlobalRoomJoin()">Join Global Room</button>
+            <div class="debug-output" id="room-debug"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Room Code Validation Test</h3>
+            <input type="text" id="test-room-code" placeholder="Enter room code" value="ABC123">
+            <button onclick="testRoomCodeValidation()">Test Room Code</button>
+            <div class="debug-output" id="validation-debug"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Local Storage Debug</h3>
+            <button onclick="showLocalStorage()">Show Local Storage</button>
+            <button onclick="clearLocalStorage()">Clear Local Storage</button>
+            <div class="debug-output" id="storage-debug"></div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate the LuxChat functions for testing
+        function generateGlobalRoomCode() {
+            const domain = window.location.hostname;
+            let hash = 0;
+            for (let i = 0; i < domain.length; i++) {
+                const char = domain.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            const baseCode = Math.abs(hash).toString(36).toUpperCase();
+            let code = baseCode.padStart(6, '0');
+            code = code.replace(/[^A-Z0-9]/g, '0').substring(0, 6);
+            return code;
+        }
+        
+        function testSetUsername() {
+            const username = document.getElementById('test-username').value.trim();
+            if (username) {
+                localStorage.setItem('luxchat_current_user', username);
+                document.getElementById('user-debug').textContent = `✅ Username set: ${username}`;
+            } else {
+                document.getElementById('user-debug').textContent = '❌ Invalid username';
+            }
+        }
+        
+        function testGetUsername() {
+            const username = localStorage.getItem('luxchat_current_user');
+            document.getElementById('user-debug').textContent = `Current username: ${username || 'not set'}`;
+        }
+        
+        function testClearUsername() {
+            localStorage.removeItem('luxchat_current_user');
+            document.getElementById('user-debug').textContent = '🧹 Username cleared';
+        }
+        
+        function testGlobalRoomCode() {
+            const code = generateGlobalRoomCode();
+            document.getElementById('room-debug').textContent = `Generated global room code: ${code}`;
+        }
+        
+        function testGlobalRoomSetup() {
+            const globalRoomKey = `luxchat_global_${window.location.hostname}`;
+            const globalRoomCode = generateGlobalRoomCode();
+            const roomData = {
+                id: globalRoomCode,
+                name: `${window.location.hostname} Chat`,
+                isGlobal: true,
+                created: Date.now()
+            };
+            localStorage.setItem(globalRoomKey, JSON.stringify(roomData));
+            document.getElementById('room-debug').textContent = `✅ Global room setup: ${JSON.stringify(roomData, null, 2)}`;
+        }
+        
+        function testGlobalRoomJoin() {
+            const globalRoomKey = `luxchat_global_${window.location.hostname}`;
+            const globalRoom = localStorage.getItem(globalRoomKey);
+            const username = localStorage.getItem('luxchat_current_user');
+            
+            let result = `Username: ${username || 'NOT SET'}\n`;
+            result += `Global room: ${globalRoom || 'NOT SET'}\n`;
+            
+            if (globalRoom) {
+                try {
+                    const roomData = JSON.parse(globalRoom);
+                    result += `Room code: ${roomData.id}\n`;
+                    result += `Room name: ${roomData.name}\n`;
+                    
+                    if (username) {
+                        result += '✅ Ready to join global room!';
+                    } else {
+                        result += '❌ Username not set - cannot join';
+                    }
+                } catch (e) {
+                    result += `❌ Error parsing room data: ${e.message}`;
+                }
+            } else {
+                result += '❌ Global room not found';
+            }
+            
+            document.getElementById('room-debug').textContent = result;
+        }
+        
+        function testRoomCodeValidation() {
+            const roomCode = document.getElementById('test-room-code').value.trim().toUpperCase();
+            let result = `Input: ${roomCode}\n`;
+            
+            if (roomCode.length < 4) {
+                result += '❌ Too short (minimum 4 characters)';
+            } else if (roomCode.length > 6) {
+                const normalized = roomCode.substring(0, 6);
+                result += `⚠️ Too long, normalized to: ${normalized}`;
+            } else if (roomCode.length < 6) {
+                const padded = roomCode.padStart(6, '0');
+                result += `⚠️ Padded to: ${padded}`;
+            } else {
+                result += '✅ Valid room code format';
+            }
+            
+            document.getElementById('validation-debug').textContent = result;
+        }
+        
+        function showLocalStorage() {
+            let result = 'LocalStorage contents:\n';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('luxchat_')) {
+                    const value = localStorage.getItem(key);
+                    result += `${key}: ${value}\n`;
+                }
+            }
+            if (result === 'LocalStorage contents:\n') {
+                result += 'No LuxChat data found';
+            }
+            document.getElementById('storage-debug').textContent = result;
+        }
+        
+        function clearLocalStorage() {
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('luxchat_')) {
+                    keys.push(key);
+                }
+            }
+            keys.forEach(key => localStorage.removeItem(key));
+            document.getElementById('storage-debug').textContent = `🧹 Cleared ${keys.length} LuxChat items`;
+        }
+        
+        // Auto-run some tests on page load
+        window.addEventListener('load', () => {
+            testGlobalRoomCode();
+            showLocalStorage();
+        });
+    </script>
+</body>
+</html>

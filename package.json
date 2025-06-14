@@ -1,0 +1,46 @@
+{
+  "name": "zeren",
+  "version": "1.0.0",
+  "description": "A luxurious, modern real-time voice and text chat application built for GitHub Pages",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "npx serve .",
+    "dev": "npx live-server --port=8080 --open=/",
+    "build": "echo 'No build step required for this vanilla JS project'",
+    "test": "echo 'Testing can be done by opening the app in browsers'",
+    "deploy": "echo 'Deploy to GitHub Pages by pushing to main branch'"
+  },
+  "keywords": [
+    "chat",
+    "voice-chat",
+    "webrtc",
+    "real-time",
+    "github-pages",
+    "vanilla-javascript",
+    "modern-ui",
+    "responsive",
+    "pwa"
+  ],
+  "author": "Zeren Developer",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/zeren.git"
+  },
+  "homepage": "https://your-username.github.io/zeren",
+  "bugs": {
+    "url": "https://github.com/your-username/zeren/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "devDependencies": {},
+  "dependencies": {}
+}

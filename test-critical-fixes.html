@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxChat Critical Fixes Test</title>
+</head>
+<body>
+    <h1>LuxChat Critical Fixes Test</h1>
+    <div id="test-results"></div>
+    
+    <script>
+        // Test the critical fixes
+        async function testCriticalFixes() {
+            const results = [];
+            
+            try {
+                // Test 1: Check if LuxChatFull class can be instantiated
+                const luxChat = new LuxChatFull();
+                results.push("✅ LuxChatFull class instantiated successfully");
+                
+                // Test 2: Check if formatTime method exists and works
+                if (typeof luxChat.formatTime === 'function') {
+                    const testTime = luxChat.formatTime(Date.now());
+                    if (testTime && typeof testTime === 'string') {
+                        results.push("✅ formatTime method works correctly");
+                    } else {
+                        results.push("❌ formatTime method returns invalid result");
+                    }
+                } else {
+                    results.push("❌ formatTime method not found");
+                }
+                
+                // Test 3: Check if setupTheme method exists
+                if (typeof luxChat.setupTheme === 'function') {
+                    results.push("✅ setupTheme method exists");
+                } else {
+                    results.push("❌ setupTheme method not found");
+                }
+                
+                // Test 4: Check if showNotification method exists
+                if (typeof luxChat.showNotification === 'function') {
+                    results.push("✅ showNotification method exists");
+                } else {
+                    results.push("❌ showNotification method not found");
+                }
+                
+                // Test 5: Check if playSound method exists
+                if (typeof luxChat.playSound === 'function') {
+                    results.push("✅ playSound method exists");
+                } else {
+                    results.push("❌ playSound method not found");
+                }
+                
+                // Test 6: Test formatTime with different timestamps
+                const today = new Date();
+                const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                
+                const todayFormatted = luxChat.formatTime(today.getTime());
+                const yesterdayFormatted = luxChat.formatTime(yesterday.getTime());
+                
+                if (todayFormatted !== yesterdayFormatted) {
+                    results.push("✅ formatTime correctly handles different dates");
+                } else {
+                    results.push("❌ formatTime doesn't differentiate between dates");
+                }
+                
+            } catch (error) {
+                results.push(`❌ Critical error: ${error.message}`);
+            }
+            
+            // Display results
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = `
+                <h2>Test Results:</h2>
+                <ul>
+                    ${results.map(result => `<li>${result}</li>`).join('')}
+                </ul>
+                <h3>Summary:</h3>
+                <p>Passed: ${results.filter(r => r.startsWith('✅')).length}</p>
+                <p>Failed: ${results.filter(r => r.startsWith('❌')).length}</p>
+            `;
+        }
+        
+        // Wait for the LuxChatFull class to be available
+        function waitForLuxChat() {
+            if (typeof LuxChatFull !== 'undefined') {
+                testCriticalFixes();
+            } else {
+                setTimeout(waitForLuxChat, 100);
+            }
+        }
+    </script>
+    
+    <!-- Load the LuxChat script -->
+    <script src="js/room-manager.js"></script>
+    <script src="js/webrtc.js"></script>
+    <script src="js/luxchat-full.js"></script>
+    
+    <script>
+        // Start the test
+        waitForLuxChat();
+    </script>
+</body>
+</html>
